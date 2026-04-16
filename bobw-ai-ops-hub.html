@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bob W · AI Ops Hub</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #ffffff;
+    --bg-secondary: #f7f6f3;
+    --bg-tertiary: #f0ede8;
+    --text-primary: #1a1916;
+    --text-secondary: #6b6860;
+    --text-tertiary: #9e9b94;
+    --border: rgba(26,25,22,0.1);
+    --border-strong: rgba(26,25,22,0.2);
+    --blue: #185FA5;
+    --blue-bg: #E6F1FB;
+    --blue-text: #0C447C;
+    --green: #0F6E56;
+    --green-bg: #E1F5EE;
+    --green-text: #085041;
+    --amber: #854F0B;
+    --amber-bg: #FAEEDA;
+    --amber-text: #633806;
+    --red: #A32D2D;
+    --red-bg: #FCEBEB;
+    --red-text: #791F1F;
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --font: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap');
+
+  body {
+    font-family: var(--font);
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* TOP BAR */
+  .topbar {
+    background: var(--bg);
+    border-bottom: 0.5px solid var(--border);
+    padding: 0 2rem;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .logo-mark {
+    width: 32px; height: 32px;
+    background: var(--text-primary);
+    border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center;
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+  .logo-text { font-size: 14px; font-weight: 500; color: var(--text-primary); }
+  .logo-sub { font-size: 12px; color: var(--text-tertiary); margin-left: 8px; padding-left: 8px; border-left: 0.5px solid var(--border); }
+  .topbar-right { display: flex; align-items: center; gap: 8px; }
+  .pill {
+    font-size: 11px; font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 100px;
+    background: var(--green-bg);
+    color: var(--green-text);
+  }
+  .pill-neutral {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: 0.5px solid var(--border);
+  }
+
+  /* LAYOUT */
+  .layout { display: grid; grid-template-columns: 260px 1fr; min-height: calc(100vh - 56px); }
+
+  /* SIDEBAR */
+  .sidebar {
+    background: var(--bg);
+    border-right: 0.5px solid var(--border);
+    padding: 1.5rem 1rem;
+    position: sticky;
+    top: 56px;
+    height: calc(100vh - 56px);
+    overflow-y: auto;
+  }
+  .sidebar-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+    padding: 0 8px;
+    margin-bottom: 8px;
+  }
+  .dept-btn {
+    width: 100%;
+    background: none;
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 10px 12px;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.12s;
+    margin-bottom: 2px;
+  }
+  .dept-btn:hover { background: var(--bg-secondary); }
+  .dept-btn.active { background: var(--blue-bg); }
+  .dept-btn.active .dn { color: var(--blue-text); font-weight: 500; }
+  .dn { font-size: 13px; color: var(--text-primary); font-weight: 400; }
+  .dm { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+  .ds { font-size: 11px; color: var(--green); font-weight: 500; margin-top: 1px; }
+  .sidebar-divider { height: 0.5px; background: var(--border); margin: 1rem 0; }
+
+  /* MAIN */
+  .main { padding: 2rem; }
+
+  /* STATS ROW */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 2rem; }
+  .stat-card {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1rem 1.25rem;
+  }
+  .stat-label { font-size: 11px; color: var(--text-tertiary); margin-bottom: 6px; letter-spacing: 0.01em; }
+  .stat-value { font-size: 26px; font-weight: 300; color: var(--text-primary); letter-spacing: -0.02em; }
+  .stat-sub { font-size: 11px; color: var(--text-tertiary); margin-top: 4px; }
+
+  /* PANEL */
+  .panel {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+  .panel-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 0.5px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .panel-title { font-size: 18px; font-weight: 400; color: var(--text-primary); }
+  .panel-meta { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; }
+  .panel-body { padding: 1rem 1.5rem; }
+
+  /* WORKFLOW CARDS */
+  .wf-card {
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-md);
+    margin-bottom: 8px;
+    overflow: hidden;
+    transition: border-color 0.12s;
+    cursor: pointer;
+  }
+  .wf-card:hover { border-color: var(--border-strong); }
+  .wf-card.open { border-color: #378ADD; }
+  .wf-top {
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .wf-name { font-size: 13px; font-weight: 500; color: var(--text-primary); flex: 1; }
+  .wf-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .badge {
+    font-size: 10px; font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 100px;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+  .b-high { background: var(--red-bg); color: var(--red-text); }
+  .b-med  { background: var(--amber-bg); color: var(--amber-text); }
+  .b-low  { background: var(--bg-secondary); color: var(--text-secondary); border: 0.5px solid var(--border); }
+  .chevron {
+    width: 16px; height: 16px;
+    border-right: 1.5px solid var(--text-tertiary);
+    border-bottom: 1.5px solid var(--text-tertiary);
+    transform: rotate(45deg);
+    transition: transform 0.2s;
+    flex-shrink: 0;
+    margin-top: -3px;
+  }
+  .wf-card.open .chevron { transform: rotate(-135deg); margin-top: 3px; }
+
+  .wf-detail {
+    display: none;
+    border-top: 0.5px solid var(--border);
+    padding: 16px;
+    background: #fafaf8;
+  }
+  .wf-card.open .wf-detail { display: block; }
+  .wf-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 12px; }
+
+  .wf-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
+  .wm {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px;
+    text-align: center;
+  }
+  .wm-label { font-size: 10px; color: var(--text-tertiary); margin-bottom: 4px; }
+  .wm-val { font-size: 15px; font-weight: 500; color: var(--text-primary); }
+
+  .wf-tools { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+  .tool-tag {
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: var(--radius-sm);
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+  }
+
+  .runbook {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.8;
+  }
+  .runbook-title { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-tertiary); margin-bottom: 8px; font-weight: 600; }
+  .runbook ol { padding-left: 16px; }
+  .runbook li { margin-bottom: 4px; }
+
+  /* EMPTY STATE */
+  .empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    color: var(--text-tertiary);
+    font-size: 13px;
+    gap: 8px;
+  }
+  .empty-icon { font-size: 32px; opacity: 0.4; }
+
+  /* FOOTER */
+  .footer {
+    margin-top: 2rem;
+    padding: 1.25rem 1.5rem;
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .footer-text { font-size: 12px; color: var(--text-tertiary); }
+  .footer-contact { font-size: 12px; color: var(--text-secondary); font-weight: 500; }
+  .cta-btn {
+    font-size: 13px; font-weight: 500;
+    padding: 8px 18px;
+    border-radius: var(--radius-md);
+    background: var(--text-primary);
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.12s;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .cta-btn:hover { opacity: 0.85; }
+
+  @media (max-width: 768px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { position: static; height: auto; display: flex; flex-wrap: wrap; gap: 6px; padding: 1rem; }
+    .dept-btn { width: auto; flex: 1; min-width: 120px; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .wf-metrics { grid-template-columns: repeat(3, 1fr); }
+    .topbar { padding: 0 1rem; }
+    .main { padding: 1rem; }
+    .logo-sub { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="logo-mark">B</div>
+    <span class="logo-text">Bob W</span>
+    <span class="logo-sub">AI Ops Hub · Demo by NovaCrew</span>
+  </div>
+  <div class="topbar-right">
+    <span class="pill">18 automations mapped</span>
+    <span class="pill pill-neutral">6 departments</span>
+  </div>
+</header>
+
+<div class="layout">
+  <nav class="sidebar">
+    <div class="sidebar-label">Departments</div>
+    <div id="dept-nav"></div>
+    <div class="sidebar-divider"></div>
+    <div style="padding: 0 8px;">
+      <div style="font-size: 11px; color: var(--text-tertiary); line-height: 1.7;">
+        This audit was built by <strong style="color: var(--text-secondary);">NovaCrew</strong> as a demo for Bob W.<br><br>
+        Each automation includes toolstack, ROI estimate, and a deployment runbook.
+      </div>
+    </div>
+  </nav>
+
+  <main class="main">
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-label">Hours saved / week</div>
+        <div class="stat-value">142</div>
+        <div class="stat-sub">across all departments</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Active automations</div>
+        <div class="stat-value">18</div>
+        <div class="stat-sub">ready to deploy</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Cost avoided / mo</div>
+        <div class="stat-value">€9,400</div>
+        <div class="stat-sub">vs manual baseline</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Est. running cost / mo</div>
+        <div class="stat-value">€120</div>
+        <div class="stat-sub">API + automation platform</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header" id="panel-header">
+        <div>
+          <div class="panel-title" id="panel-title">Select a department</div>
+          <div class="panel-meta" id="panel-meta">Click any department on the left to explore its automations</div>
+        </div>
+        <div id="panel-badge"></div>
+      </div>
+      <div class="panel-body" id="panel-body">
+        <div class="empty">
+          <div class="empty-icon">&#8592;</div>
+          <span>Pick a department to explore workflows</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div>
+        <div class="footer-contact">Mihai · NovaCrew · info@novacrew.nl · +40752179769</div>
+        <div class="footer-text">Ready to implement all 18 workflows in 4 weeks, fully documented and handed over.</div>
+      </div>
+      <a class="cta-btn" href="mailto:info@novacrew.nl?subject=Bob W AI Ops — Let's talk">Book a call ↗</a>
+    </div>
+  </main>
+</div>
+
+<script>
+const data = [
+  {
+    id: "guest", name: "Guest Success", count: 4, savings: "38 hrs/wk",
+    items: [
+      {
+        name: "Pre-arrival personalisation engine", p: "high",
+        desc: "Pulls booking data from Mews PMS and generates a tailored welcome message and room setup checklist per guest profile. Sends via WhatsApp 24h before arrival. Zero manual work per booking.",
+        tools: ["Claude API", "Mews PMS", "Make", "WhatsApp Business"],
+        hours: "12 hrs/wk", cost: "€1,800/mo", csat: "+0.3",
+        runbook: ["Connect Mews PMS webhook to Make scenario on new booking", "Make calls Claude API with guest data (name, stay length, prior stays, preferences)", "Claude returns personalised message + room setup checklist JSON", "Make sends WhatsApp message via Business API 24h before arrival", "Owner: Guest Success Lead"]
+      },
+      {
+        name: "Live chat triage & auto-response", p: "high",
+        desc: "Classifies incoming guest messages by urgency and type. Handles FAQ-tier queries automatically. Routes complex issues to the on-call Bobstar with a context summary pre-written.",
+        tools: ["Claude API", "Intercom", "Make"],
+        hours: "9 hrs/wk", cost: "€1,200/mo", csat: "+0.2",
+        runbook: ["Intercom webhook triggers Make on new message", "Claude classifies: FAQ / maintenance / complaint / other + urgency score", "If FAQ: Claude drafts reply, Make posts to Intercom (human can edit/send)", "If urgent: Make pings on-call Bobstar in Slack with summary + suggested response", "Owner: Guest Success Lead"]
+      },
+      {
+        name: "Post-stay review request & sentiment routing", p: "med",
+        desc: "Triggers a personalised review request email 2h after checkout. Monitors incoming reviews and flags negative ones to the department lead with a draft response within 15 minutes.",
+        tools: ["Claude API", "Mews PMS", "Zapier", "Gmail"],
+        hours: "6 hrs/wk", cost: "€700/mo", csat: "+0.1",
+        runbook: ["Mews checkout event triggers Zapier", "Zapier waits 2h, then Claude writes personalised review request email", "Gmail sends email to guest", "Booking.com / Google review webhook feeds new reviews to Make", "Claude scores sentiment; if negative, drafts response + alerts team lead in Slack", "Owner: Guest Success Lead"]
+      },
+      {
+        name: "Housekeeping schedule optimiser", p: "med",
+        desc: "Pulls checkout times and room status from Mews daily. Auto-generates the HK schedule sorted by priority and guest arrival time. Sends to team lead via Slack each morning at 07:00.",
+        tools: ["Mews PMS", "Make", "Slack"],
+        hours: "11 hrs/wk", cost: "€900/mo", csat: "—",
+        runbook: ["Make scenario runs at 06:45 daily", "Pulls all checkouts, check-ins, and room statuses from Mews API", "Sorts rooms by: checkout + same-day arrival > checkout > occupied inspection", "Formats as Slack message with colour-coded priority", "Posts to #housekeeping channel at 07:00", "Owner: Local Ops Manager"]
+      }
+    ]
+  },
+  {
+    id: "revenue", name: "Revenue", count: 3, savings: "24 hrs/wk",
+    items: [
+      {
+        name: "Dynamic pricing brief generator", p: "high",
+        desc: "Aggregates comp-set rates, local event calendar, and occupancy forecast each morning. Generates a plain-English daily pricing brief with recommended rate adjustments for the revenue manager.",
+        tools: ["Claude API", "Mews PMS", "Make", "Google Sheets"],
+        hours: "10 hrs/wk", cost: "€1,500/mo", csat: "—",
+        runbook: ["Make pulls Mews occupancy data + forward bookings at 07:30", "Scrapes comp-set rates from configured OTA URLs", "Pulls local events from Google Calendar / Ticketmaster API", "Claude synthesises all data into a plain-English pricing brief with 3 recommendations", "Sends to Revenue Manager email + posts summary in #revenue Slack channel", "Owner: Revenue Manager"]
+      },
+      {
+        name: "Monthly revenue report automation", p: "med",
+        desc: "Pulls KPIs from Mews and the finance stack, formats into a branded report with written commentary. Delivered to COO inbox on the 1st of every month at 08:00.",
+        tools: ["Claude API", "Mews PMS", "Make", "Google Docs"],
+        hours: "8 hrs/wk", cost: "€600/mo", csat: "—",
+        runbook: ["Make scenario triggers on 1st of month at 07:00", "Pulls RevPAR, ADR, occupancy, NPS from Mews API for prior month", "Claude writes executive summary and variance commentary", "Make populates Google Doc template with data + commentary", "Exports as PDF, emails to COO", "Owner: Revenue Manager"]
+      },
+      {
+        name: "OTA listing content updater", p: "low",
+        desc: "Detects seasonal changes or new property features and rewrites listing descriptions for Booking.com and Airbnb. Queues all drafts for human review before publishing.",
+        tools: ["Claude API", "Airtable", "Make"],
+        hours: "6 hrs/wk", cost: "€400/mo", csat: "—",
+        runbook: ["Property updates logged in Airtable trigger Make", "Claude rewrites listing for each OTA channel in appropriate tone/length", "Drafts posted to Airtable review queue", "Revenue Manager approves / edits", "Make pushes approved copy to OTA APIs", "Owner: Revenue Manager"]
+      }
+    ]
+  },
+  {
+    id: "ops", name: "Central Ops", count: 3, savings: "31 hrs/wk",
+    items: [
+      {
+        name: "Vendor contract review assistant", p: "high",
+        desc: "Extracts key terms, obligations, and renewal dates from uploaded vendor contracts. Flags non-standard clauses and auto-populates the master contract tracker in Notion.",
+        tools: ["Claude API", "Make", "Notion", "Google Drive"],
+        hours: "14 hrs/wk", cost: "€2,100/mo", csat: "—",
+        runbook: ["Contract PDF uploaded to designated Google Drive folder", "Make detects new file, sends to Claude API with extraction prompt", "Claude returns: parties, term dates, obligations, renewal notice period, flagged clauses", "Make creates Notion database entry with all extracted fields", "Sends summary + flags to Ops Lead in Slack for review", "Owner: Central Ops Lead"]
+      },
+      {
+        name: "Cross-department handoff automator", p: "med",
+        desc: "Monitors task completion in Asana. Auto-triggers next-step notifications to the receiving team with full context. Eliminates the manual follow-up chasing between departments.",
+        tools: ["Claude API", "Asana", "Notion", "Slack", "Make"],
+        hours: "9 hrs/wk", cost: "€800/mo", csat: "—",
+        runbook: ["Asana task completion webhook triggers Make", "Make identifies handoff type from task tags", "Claude writes context-aware handoff message for receiving team", "Make posts to relevant Slack channel with task link and next steps", "Creates follow-up task in Asana assigned to receiving team lead", "Owner: COO / Central Ops"]
+      },
+      {
+        name: "Incident log classifier", p: "med",
+        desc: "Reads freeform incident reports submitted by on-site staff, classifies by type and severity, routes to the correct owner, and updates the ops dashboard automatically.",
+        tools: ["Claude API", "Airtable", "Make", "Slack"],
+        hours: "8 hrs/wk", cost: "€600/mo", csat: "+0.1",
+        runbook: ["Staff submit incident via simple Airtable form (freeform text)", "Make sends text to Claude: classify type + severity 1-5 + recommended owner", "Make updates Airtable record with classification", "If severity 4-5: immediate Slack alert to Ops Lead + COO", "Weekly digest of all incidents emailed to Ops Lead every Monday", "Owner: Local Ops Manager"]
+      }
+    ]
+  },
+  {
+    id: "people", name: "People & Onboarding", count: 3, savings: "22 hrs/wk",
+    items: [
+      {
+        name: "New hire onboarding sequence", p: "high",
+        desc: "Triggers a personalised 14-day onboarding journey on first day. Assigns role-specific tasks in Notion, sends daily Slack check-ins, and flags stalled progress to the People team.",
+        tools: ["Claude API", "Notion", "Slack", "Make"],
+        hours: "10 hrs/wk", cost: "€900/mo", csat: "—",
+        runbook: ["New hire record created in Notion HR database triggers Make", "Claude generates personalised onboarding task list based on role + department", "Make creates Notion task pages, assigns to new hire and buddy", "Daily Slack message sent to new hire at 09:00 for first 14 days", "If task overdue by 2 days: Make alerts People team in Slack", "Owner: People Lead"]
+      },
+      {
+        name: "Internal AI literacy trainer", p: "med",
+        desc: "Weekly Slack digest with one practical AI tip tailored to each team's function. Tracks which Bobstars have completed the AI tool certification path.",
+        tools: ["Claude API", "Slack", "Notion", "Make"],
+        hours: "7 hrs/wk", cost: "€400/mo", csat: "—",
+        runbook: ["Make scenario runs every Monday at 09:00", "Claude generates one practical AI tip per department (different each week)", "Make posts customised tip to each department Slack channel", "Notion tracks certification progress per Bobstar", "Monthly completion report sent to COO", "Owner: AI Ops Lead / People"]
+      },
+      {
+        name: "Job description generator", p: "low",
+        desc: "Turns a role brief filled in a simple form into a polished JD matching Bob W's tone. Routes to hiring manager for review, then auto-posts to Greenhouse once approved.",
+        tools: ["Claude API", "Typeform", "Make", "Greenhouse"],
+        hours: "5 hrs/wk", cost: "€300/mo", csat: "—",
+        runbook: ["Hiring manager completes Typeform with role brief (5 fields)", "Make sends brief to Claude with Bob W tone guidelines", "Claude returns full JD: intro, responsibilities, requirements, nice-to-haves", "Make emails draft to hiring manager for review/edit", "On approval reply: Make posts to Greenhouse via API", "Owner: People Lead"]
+      }
+    ]
+  },
+  {
+    id: "legal", name: "Legal & Compliance", count: 2, savings: "14 hrs/wk",
+    items: [
+      {
+        name: "GDPR request handler", p: "high",
+        desc: "Detects inbound data subject access requests via email, classifies the request type, extracts relevant guest data from PMS, and drafts a GDPR-compliant response for legal sign-off.",
+        tools: ["Claude API", "Gmail", "Mews PMS", "Make"],
+        hours: "8 hrs/wk", cost: "€1,000/mo", csat: "—",
+        runbook: ["Gmail filter labels inbound DSARs and triggers Make", "Claude classifies: access / deletion / rectification / portability request", "Make queries Mews PMS for relevant guest data", "Claude drafts GDPR-compliant response with all required disclosures", "Draft emailed to Legal lead for review before sending", "Owner: Legal / COO"]
+      },
+      {
+        name: "Lease renewal alert & summariser", p: "med",
+        desc: "Scans the property lease database 90, 60, and 30 days before expiry. Generates a one-page renewal brief with key terms, market context, and recommended negotiation points.",
+        tools: ["Claude API", "Google Drive", "Make", "Notion"],
+        hours: "6 hrs/wk", cost: "€700/mo", csat: "—",
+        runbook: ["Make checks Notion lease database daily for upcoming expiry dates", "At 90/60/30 day milestones: triggers renewal brief generation", "Make retrieves original lease PDF from Google Drive", "Claude extracts terms and writes renewal brief with negotiation context", "Brief posted to Notion + Slack alert to Real Estate lead", "Owner: Real Estate Lead / Legal"]
+      }
+    ]
+  },
+  {
+    id: "finance", name: "Finance", count: 3, savings: "13 hrs/wk",
+    items: [
+      {
+        name: "Invoice processing & coding", p: "high",
+        desc: "Reads incoming supplier invoices from email, extracts line items, maps to cost centres, and pushes pre-coded entries to Xero. Flags anomalies for human review.",
+        tools: ["Claude API", "Gmail", "Make", "Xero"],
+        hours: "7 hrs/wk", cost: "€900/mo", csat: "—",
+        runbook: ["Gmail filter labels supplier invoices, triggers Make", "Make extracts PDF attachment, sends to Claude with cost centre mapping guide", "Claude returns: supplier, date, line items, cost centre codes, anomaly flags", "Make pushes coded entry to Xero as draft bill", "Anomalies flagged in Slack to Finance lead for manual review", "Owner: Finance Lead"]
+      },
+      {
+        name: "Budget variance commentary", p: "med",
+        desc: "Pulls actuals vs budget from Xero, identifies top variances, and auto-writes plain-English commentary for the monthly board pack. Saves the CFO 4 hours per cycle.",
+        tools: ["Claude API", "Xero", "Google Sheets", "Make"],
+        hours: "4 hrs/wk", cost: "€500/mo", csat: "—",
+        runbook: ["Make pulls actuals vs budget from Xero API on 3rd of each month", "Identifies top 5 favourable and adverse variances", "Claude writes plain-English commentary explaining each variance", "Populates Google Sheets board pack template", "Finance Lead reviews and adjusts before board submission", "Owner: Finance Lead / COO"]
+      },
+      {
+        name: "Expense policy compliance checker", p: "low",
+        desc: "Reviews submitted expense claims against policy rules. Auto-approves compliant claims. Flags edge cases with the relevant policy clause and routes to line manager.",
+        tools: ["Claude API", "Make", "Spendesk"],
+        hours: "2 hrs/wk", cost: "€200/mo", csat: "—",
+        runbook: ["Spendesk new expense submission webhook triggers Make", "Make sends claim details + expense policy document to Claude", "Claude returns: compliant / non-compliant / requires-review + reason + policy citation", "Compliant: Make auto-approves in Spendesk", "Non-compliant / review: Make notifies line manager with Claude's reasoning", "Owner: Finance Lead"]
+      }
+    ]
+  }
+];
+
+const pLabels = { high: "High impact", med: "Medium", low: "Low" };
+const pClass  = { high: "b-high", med: "b-med", low: "b-low" };
+let active = null;
+
+function buildNav() {
+  const nav = document.getElementById("dept-nav");
+  nav.innerHTML = data.map(d => `
+    <button class="dept-btn${active === d.id ? " active" : ""}" onclick="selectDept('${d.id}')">
+      <div class="dn">${d.name}</div>
+      <div class="dm">${d.count} workflows</div>
+      <div class="ds">${d.savings} saved</div>
+    </button>
+  `).join("");
+}
+
+function selectDept(id) {
+  active = id;
+  buildNav();
+  const dept = data.find(d => d.id === id);
+  document.getElementById("panel-title").textContent = dept.name;
+  document.getElementById("panel-meta").textContent = `${dept.count} automations · ${dept.savings} estimated time savings`;
+
+  const topP = dept.items[0].p;
+  document.getElementById("panel-badge").innerHTML =
+    `<span class="badge ${pClass[topP]}">${pLabels[topP]} priority</span>`;
+
+  document.getElementById("panel-body").innerHTML = dept.items.map((w, i) => `
+    <div class="wf-card" id="wf-${id}-${i}" onclick="toggleWf('${id}',${i})">
+      <div class="wf-top">
+        <div class="wf-name">${w.name}</div>
+        <div class="wf-right">
+          <span class="badge ${pClass[w.p]}">${pLabels[w.p]}</span>
+          <div class="chevron"></div>
+        </div>
+      </div>
+      <div class="wf-detail">
+        <p class="wf-desc">${w.desc}</p>
+        <div class="wf-metrics">
+          <div class="wm"><div class="wm-label">Time saved</div><div class="wm-val">${w.hours}</div></div>
+          <div class="wm"><div class="wm-label">Cost avoided</div><div class="wm-val">${w.cost}</div></div>
+          <div class="wm"><div class="wm-label">CSAT delta</div><div class="wm-val">${w.csat}</div></div>
+        </div>
+        <div class="wf-tools">${w.tools.map(t => `<span class="tool-tag">${t}</span>`).join("")}</div>
+        <div class="runbook">
+          <div class="runbook-title">Deployment runbook</div>
+          <ol>${w.runbook.map(s => `<li>${s}</li>`).join("")}</ol>
+        </div>
+      </div>
+    </div>
+  `).join("");
+}
+
+function toggleWf(deptId, i) {
+  document.getElementById(`wf-${deptId}-${i}`).classList.toggle("open");
+}
+
+buildNav();
+selectDept("guest");
+</script>
+</body>
+</html>
